@@ -1,18 +1,30 @@
-import express from 'express';
-import bodyParser from 'body-parser';
 import cors from 'cors';
+import http from 'http';
+import express from 'express';
+import socketIO from 'socket.io';
+import bodyParser from 'body-parser';
 
 import { enviroments as ENV } from '../enviroments/enviroments';
 import router from '../routes';
 
 export default class Server {
 
-  public app: express.Application;
+  private static _instance: Server;
+  private app: express.Application;
   private port: number;
+  private socketIo: SocketIO.Server;
+  private httpServer: http.Server;
 
   constructor() {
-    this.app = express();
     this.port = ENV.SERVER_PORT;
+    this.app = express();
+    this.httpServer = http.createServer(this.app);
+    this.socketIo = socketIO(this.httpServer);
+    this.initSockets();
+  }
+
+  public static get instance(): Server {
+    return this._instance || (this._instance = new this());
   }
 
   public configBodyParser(): void {
@@ -28,7 +40,11 @@ export default class Server {
     this.app.use('/', router);
   }
 
+  public initSockets(): void {
+    this.socketIo.on('connection', (client) => console.log('Client connected', client));
+  }
+
   public init(): void {
-    this.app.listen(this.port, () => console.log(`Running app in port: ${this.port}`))
+    this.httpServer.listen(this.port, () => console.log(`Running app in port: ${this.port}`))
   }
 }

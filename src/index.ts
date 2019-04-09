@@ -1,6 +1,6 @@
 import Server from './server';
 
-const server = new Server(); 
+const server = Server.instance;
 
 server.configBodyParser();
 server.configCors();
