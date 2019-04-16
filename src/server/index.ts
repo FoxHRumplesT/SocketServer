@@ -5,7 +5,7 @@ import socketIO from 'socket.io';
 import bodyParser from 'body-parser';
 
 import { enviroments as ENV } from '../enviroments/enviroments';
-import { listenDisconnect, listenMessages } from '../sockets';
+import { listenDisconnect, listenMessages, listenConfigUser } from '../sockets';
 import router from '../routes';
 
 export default class Server {
@@ -43,6 +43,7 @@ export default class Server {
 
   public initSockets(): void {
     this.socketIo.on('connection', (client) => {
+      listenConfigUser(client);
       listenMessages(client, this.socketIo);
       listenDisconnect(client);
     });
